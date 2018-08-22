@@ -3,8 +3,11 @@ package com.example.administrator.canvasdemo;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
@@ -54,17 +57,15 @@ public class LeafLoadingView extends View {
 
     private int mTotalWidth, mTotalHeight;
     private Paint mBitmapPaint, mWhitePaint, mOrangePaint;
-    private Rect mWhiteRectF, mOrangleRectF, mArcRectF;
+    private RectF mWhiteRectF, mOrangleRectF, mArcRectF;
     //当前进度
     private int mProgress;
     //所绘制的进度条部分的宽度
     private int mProgressWidth;
     //当前所在的绘制的进度条的位置
     private int mCurrentProgressPosition;
-    //弧形的半径
+    //所绘制的进度条弧形的半径
     private int mArcRadius;
-    //arc的右上角的x坐标，也就是矩形x坐标的起始点
-    private int mRightLocation;
     //用于产生叶子的信息
     private LeafFactory mLeafFactory;
     //产生出的叶子信息
@@ -72,6 +73,8 @@ public class LeafLoadingView extends View {
 
     //用于控制随机增加的时间不报团
     private int mAddTime;
+    //arc的右上角的x坐标，也就是矩形x坐标的起始点
+    private int mArcRightLocation;
 
 
     public LeafLoadingView(Context context) {
@@ -90,6 +93,18 @@ public class LeafLoadingView extends View {
     }
 
 
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        //绘制进度条和叶子
+        //之所以把叶子放在进度条里绘制，主要是层级的问题
+        drawProgressAndLeafs(canvas);
+        canvas.drawBitmap(mOuterBitmap,mOuterSrcRect,mOuterDestRect,mBitmapPaint);
+        postInvalidate();
+    }
+
+
+
     private void init() {
         mResources = getResources();
         mLeftMargin = UiUtils.dipToPx(getContext(), LEFT_MARGIN);
@@ -106,12 +121,43 @@ public class LeafLoadingView extends View {
           mBitmapPaint=new Paint();
           mBitmapPaint.setAntiAlias(true);
           mBitmapPaint.setDither(true);
+          mBitmapPaint.setFilterBitmap(true);
+          mWhitePaint=new Paint();
+          mWhitePaint.setAntiAlias(true);
+          mWhitePaint.setColor(WHITE_COLOR);
+          mOrangePaint=new Paint();
+          mOrangePaint.setAntiAlias(true);
+          mOrangePaint.setColor(ORANGE_COLOR);
     }
 
     private void initBitmap() {
+           mLeafBitmap=((BitmapDrawable) mResources.getDrawable(R.drawable.leaf)).getBitmap();
+           mLeafWidth=mLeafBitmap.getWidth();
+           mLeafHeight=mLeafBitmap.getHeight();
 
+           mOuterBitmap=((BitmapDrawable) mResources.getDrawable(R.drawable.leaf_kuang)).getBitmap();
+           mOuterWidth=mOuterBitmap.getWidth();
+           mOuterHeight=mOuterBitmap.getHeight();
     }
 
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        mTotalWidth=w;
+        mTotalHeight=h;
+        mProgressWidth=mTotalWidth-mLeftMargin-mRightMargin;
+        mArcRadius=(mTotalHeight-2*mLeftMargin)/2;
+
+        mOuterSrcRect=new Rect(0,0,mOuterWidth,mOuterHeight);
+        mOuterDestRect = new Rect(0, 0, mTotalWidth, mTotalHeight);
+       mWhiteRectF=new RectF(mLeftMargin+mCurrentProgressPosition,mLeftMargin,mTotalWidth
+               - mRightMargin,mTotalHeight-mLeftMargin);
+       mOrangleRectF=new RectF(mLeftMargin+mArcRadius,mLeftMargin,mCurrentProgressPosition,mTotalHeight-mLeftMargin);
+       mArcRectF=new RectF(mLeftMargin,mLeftMargin,mLeftMargin+2*mArcRadius,mTotalHeight-mLeftMargin);
+        mArcRightLocation = mLeftMargin + mArcRadius;
+
+    }
 
     private class LeafFactory {
         private static final int MAX_LEAFS = 8;
@@ -176,5 +222,19 @@ public class LeafLoadingView extends View {
 
     private enum StartType {
         LITTLE, MIDDLE, BIG
+    }
+
+
+    private void drawProgressAndLeafs(Canvas canvas) {
+        if (mProgress>=TOTAL_PROGRESS){
+            mProgress=0;
+        }
+        //mProgressWidth 为进度条的宽度，根据当前进度算出进度条的位置
+        mCurrentProgressPosition=mProgressWidth*mProgress/TOTAL_PROGRESS;
+         if (mCurrentProgressPosition<mArcRadius){
+             //1绘制白色arc
+             canvas.drawArc(mArcRectF,90,180,false,mWhitePaint);
+    
+         }
     }
 }
