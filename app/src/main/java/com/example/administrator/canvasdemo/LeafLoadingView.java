@@ -99,10 +99,9 @@ public class LeafLoadingView extends View {
         //绘制进度条和叶子
         //之所以把叶子放在进度条里绘制，主要是层级的问题
         drawProgressAndLeafs(canvas);
-        canvas.drawBitmap(mOuterBitmap,mOuterSrcRect,mOuterDestRect,mBitmapPaint);
+        canvas.drawBitmap(mOuterBitmap, mOuterSrcRect, mOuterDestRect, mBitmapPaint);
         postInvalidate();
     }
-
 
 
     private void init() {
@@ -118,43 +117,43 @@ public class LeafLoadingView extends View {
     }
 
     private void initPaint() {
-          mBitmapPaint=new Paint();
-          mBitmapPaint.setAntiAlias(true);
-          mBitmapPaint.setDither(true);
-          mBitmapPaint.setFilterBitmap(true);
-          mWhitePaint=new Paint();
-          mWhitePaint.setAntiAlias(true);
-          mWhitePaint.setColor(WHITE_COLOR);
-          mOrangePaint=new Paint();
-          mOrangePaint.setAntiAlias(true);
-          mOrangePaint.setColor(ORANGE_COLOR);
+        mBitmapPaint = new Paint();
+        mBitmapPaint.setAntiAlias(true);
+        mBitmapPaint.setDither(true);
+        mBitmapPaint.setFilterBitmap(true);
+        mWhitePaint = new Paint();
+        mWhitePaint.setAntiAlias(true);
+        mWhitePaint.setColor(WHITE_COLOR);
+        mOrangePaint = new Paint();
+        mOrangePaint.setAntiAlias(true);
+        mOrangePaint.setColor(ORANGE_COLOR);
     }
 
     private void initBitmap() {
-           mLeafBitmap=((BitmapDrawable) mResources.getDrawable(R.drawable.leaf)).getBitmap();
-           mLeafWidth=mLeafBitmap.getWidth();
-           mLeafHeight=mLeafBitmap.getHeight();
+        mLeafBitmap = ((BitmapDrawable) mResources.getDrawable(R.drawable.leaf)).getBitmap();
+        mLeafWidth = mLeafBitmap.getWidth();
+        mLeafHeight = mLeafBitmap.getHeight();
 
-           mOuterBitmap=((BitmapDrawable) mResources.getDrawable(R.drawable.leaf_kuang)).getBitmap();
-           mOuterWidth=mOuterBitmap.getWidth();
-           mOuterHeight=mOuterBitmap.getHeight();
+        mOuterBitmap = ((BitmapDrawable) mResources.getDrawable(R.drawable.leaf_kuang)).getBitmap();
+        mOuterWidth = mOuterBitmap.getWidth();
+        mOuterHeight = mOuterBitmap.getHeight();
     }
 
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mTotalWidth=w;
-        mTotalHeight=h;
-        mProgressWidth=mTotalWidth-mLeftMargin-mRightMargin;
-        mArcRadius=(mTotalHeight-2*mLeftMargin)/2;
+        mTotalWidth = w;
+        mTotalHeight = h;
+        mProgressWidth = mTotalWidth - mLeftMargin - mRightMargin;
+        mArcRadius = (mTotalHeight - 2 * mLeftMargin) / 2;
 
-        mOuterSrcRect=new Rect(0,0,mOuterWidth,mOuterHeight);
+        mOuterSrcRect = new Rect(0, 0, mOuterWidth, mOuterHeight);
         mOuterDestRect = new Rect(0, 0, mTotalWidth, mTotalHeight);
-       mWhiteRectF=new RectF(mLeftMargin+mCurrentProgressPosition,mLeftMargin,mTotalWidth
-               - mRightMargin,mTotalHeight-mLeftMargin);
-       mOrangleRectF=new RectF(mLeftMargin+mArcRadius,mLeftMargin,mCurrentProgressPosition,mTotalHeight-mLeftMargin);
-       mArcRectF=new RectF(mLeftMargin,mLeftMargin,mLeftMargin+2*mArcRadius,mTotalHeight-mLeftMargin);
+        mWhiteRectF = new RectF(mLeftMargin + mCurrentProgressPosition, mLeftMargin, mTotalWidth
+                - mRightMargin, mTotalHeight - mLeftMargin);
+        mOrangleRectF = new RectF(mLeftMargin + mArcRadius, mLeftMargin, mCurrentProgressPosition, mTotalHeight - mLeftMargin);
+        mArcRectF = new RectF(mLeftMargin, mLeftMargin, mLeftMargin + 2 * mArcRadius, mTotalHeight - mLeftMargin);
         mArcRightLocation = mLeftMargin + mArcRadius;
 
     }
@@ -226,15 +225,93 @@ public class LeafLoadingView extends View {
 
 
     private void drawProgressAndLeafs(Canvas canvas) {
-        if (mProgress>=TOTAL_PROGRESS){
-            mProgress=0;
+        if (mProgress >= TOTAL_PROGRESS) {
+            mProgress = 0;
         }
         //mProgressWidth 为进度条的宽度，根据当前进度算出进度条的位置
-        mCurrentProgressPosition=mProgressWidth*mProgress/TOTAL_PROGRESS;
-         if (mCurrentProgressPosition<mArcRadius){
-             //1绘制白色arc
-             canvas.drawArc(mArcRectF,90,180,false,mWhitePaint);
-    
-         }
+        mCurrentProgressPosition = mProgressWidth * mProgress / TOTAL_PROGRESS;
+        if (mCurrentProgressPosition < mArcRadius) {
+            //1绘制白色arc
+            //??????
+            canvas.drawArc(mArcRectF, 90, 180, false, mWhitePaint);
+            //2,绘制白色矩形
+            mWhiteRectF.left=mArcRightLocation;
+            canvas.drawRect(mWhiteRectF,mWhitePaint);
+            //绘制叶子
+            drawLeafs(canvas);
+            //3,绘制棕色
+            //单边角度
+            int angle= (int) Math.toDegrees(Math.acos((mArcRadius - mCurrentProgressPosition)/(float)mArcRadius));
+            //起始位置
+            int startAngle=180-angle;
+            //扫过的角度
+            int sweepAngle=2*angle;
+            canvas.drawArc(mArcRectF,startAngle,sweepAngle,false,mOrangePaint);
+        }else {//mCurrentProgressPosition>=mArcRadius
+            // 1.绘制white RECT
+            mWhiteRectF.left=mCurrentProgressPosition;
+            canvas.drawRect(mWhiteRectF,mWhitePaint);
+            //绘制叶子
+            drawLeafs(canvas);
+             // 2.绘制Orange ARC
+            canvas.drawArc(mArcRectF, 90, 180, false, mOrangePaint);
+            //3.绘制orange RECT
+            mOrangleRectF.left=mArcRightLocation;
+            mOrangleRectF.right = mCurrentProgressPosition;
+            canvas.drawRect(mOrangleRectF, mOrangePaint);
+
+        }
+    }
+
+
+    //绘制叶子
+    private void drawLeafs(Canvas canvas) {
+        mLeafRotateTime=mLeafFloatTime<=0?LEAF_FLOAT_TIME:mLeafRotateTime;
+        long currentTime=System.currentTimeMillis();
+        for (int i = 0; i < mLeafInfos.size(); i++) {
+            Leaf leaf=mLeafInfos.get(i);
+            if (currentTime>leaf.startTime&&leaf.startTime!=0){
+                //绘制叶子--根据叶子的类型和当前时间得出叶子的（x,y）
+                getLeafLocation(leaf,currentTime);
+                //根据时间计算旋转角度
+                canvas.save();
+
+            }
+        }
+    }
+
+    private void getLeafLocation(Leaf leaf, long currentTime) {
+        long intervalTime=currentTime-leaf.startTime;
+        mLeafFloatTime=mLeafFloatTime<=0?LEAF_FLOAT_TIME:mLeafFloatTime;
+        if (intervalTime<0){
+            return;
+        }else if (intervalTime>mLeafFloatTime){
+            leaf.startTime=System.currentTimeMillis()
+                    +new Random().nextInt((int) mLeafFloatTime);
+        }
+        //部分片段
+        float fraction= (float) intervalTime/mLeafFloatTime;
+        leaf.x=(int)(mProgressWidth-mProgressWidth*fraction);
+        leaf.y=getLocationY(leaf);
+    }
+
+    private float getLocationY(Leaf leaf) {
+        float w=(float) ((float) 2 * Math.PI / mProgressWidth);
+        float a=mMiddleAmplitude;
+        switch (leaf.type) {
+            case LITTLE:
+                // 小振幅 ＝ 中等振幅 － 振幅差
+                a = mMiddleAmplitude - mAmplitudeDisparity;
+                break;
+            case MIDDLE:
+                a = mMiddleAmplitude;
+            case BIG:
+                // 小振幅 ＝ 中等振幅 + 振幅差
+                a = mMiddleAmplitude + mAmplitudeDisparity;
+                break;
+            default:
+                break;
+        }
+        return (int) (a * Math.sin(w * leaf.x)) + mArcRadius * 2 / 3;
     }
 }
