@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/colorPrimary"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:textColor="#fff"
+        android:layout_centerInParent="true"
+        android:text="弹窗ddddddd"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <TextView
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:textColor="#fff"
+        android:layout_centerInParent="true"
+        android:text="弹窗ddddddd"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <TextView
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:textColor="#fff"
+        android:layout_centerInParent="true"
+        android:text="弹窗ddddddd"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <TextView
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:textColor="#fff"
+        android:layout_centerInParent="true"
+        android:text="弹窗ddddddd"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+
+
+</LinearLayout>
